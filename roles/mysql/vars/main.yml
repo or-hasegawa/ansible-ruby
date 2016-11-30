@@ -1,0 +1,29 @@
+---
+mysql_repo: mysql57-community-release-el7-9.noarch
+mysql_repourl: http://dev.mysql.com/get/{{ mysql_repo }}.rpm
+mysql_ver: mysql57-community
+mysql_logdir: /var/log/mysql
+my_cnf:
+  mysqld:
+    innodb_buffer_pool_size: 136M
+    datadir: /var/lib/mysql
+    port: 3306
+    socket: /var/lib/mysql/mysql.sock
+    user: mysql
+    log_error: /var/log/mysql/error.log
+    general_log: 1
+    general_log_file: /var/log/mysql/query.log
+    log_output: FILE
+    character_set_server: utf8
+    slow_query_log: 1
+    slow_query_log_file: /var/log/mysql/slow.log
+    long_query_time: 0.3
+    sql_mode: NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+  client:
+    port: 3306
+    socket: /var/lib/mysql/mysql.sock
+  mysql:
+    default_character_set: utf8
+  mysqldump:
+    default_character_set: utf8
+

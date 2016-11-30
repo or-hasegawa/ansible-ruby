@@ -1,0 +1,50 @@
+---
+- name: readline-develのインストール
+  yum: name=readline-devel state=present
+
+- name: rbenvのインストール
+  git: repo=git@github.com:rbenv/rbenv.git dest=/usr/local/rbenv accept_hostkey=yes
+
+- name: /etc/profile.d/rbenv.shの作成
+  file: path=/etc/profile.d/rbenv.sh state=touch follow=yes
+
+- name: add rbenv setting
+  with_items:
+    - export RBENV_ROOT="/usr/local/rbenv"
+    - export PATH="${RBENV_ROOT}/bin:${PATH}"
+    - eval "$(rbenv init -)"
+  lineinfile:
+    line={{ item }}
+    dest=/etc/profile.d/rbenv.sh
+  register: rbenvsetting
+
+- name: rbenv 反映
+  shell: exec $SHELL -l
+  when: rbenvsetting.changed
+
+- name: rbenvにディレクトリを作成
+  with_items:
+    - plugins
+    - shims
+    - versions
+  file: path=/usr/local/rbenv/{{ item }} state=directory
+
+- name: ruby-buildを取得
+  git: repo=git@github.com:rbenv/ruby-build.git dest=/usr/local/rbenv/plugins/ruby-build accept_hostkey=yes
+
+- name: get ruby version
+  shell: source ~/.bash_profile; rbenv version
+  register: rubyver
+
+- name: debug rubyver
+  debug: var=rubyver
+
+- name: ruby install
+  with_items:
+    - source ~/.bash_profile; rbenv -v
+    - source ~/.bash_profile; rbenv install -v {{ ruby_ver }}
+    - source ~/.bash_profile; rbenv global {{ ruby_ver }}
+    - source ~/.bash_profile; rbenv rehash
+  shell: '{{ item }}'
+  when: rubyver.stdout.count("{{ ruby_ver }}") == 0
+

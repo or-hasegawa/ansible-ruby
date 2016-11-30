@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  become: yes
+  become_user: root
+  become_method: su
+  roles:
+    - common
+    - git
+    - vim
+    - rbenv
+    - mysql

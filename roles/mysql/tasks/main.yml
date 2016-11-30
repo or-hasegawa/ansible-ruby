@@ -1,0 +1,34 @@
+---
+- name: mysql-community repogitory のインストール
+  yum: name={{ mysql_repourl }} state=present
+
+- name: installed mysql
+  shell: yum list installed |grep {{ mysql_ver }}
+  register: mysqlrepo
+  changed_when: no
+
+- name: debug mysqlrepo
+  debug: var=mysqlrepo
+
+- name: yum-config-manager のインストール
+  yum: name=yum-utils state=present
+
+- name: mysql enabled
+  command: yum-config-manager --enable {{ mysql_ver }}
+  when: mysqlrepo.changed
+
+- name: mysql インストール
+  yum: name=mysql-community-server state=present
+
+- name: mysqlを明示的に起動
+  service: name=mysqld state=started enabled=yes
+
+- name: log保存ディレクトリの作成
+  file: path={{ mysql_logdir}} state=directory
+
+- name: my.cnfの設置
+  template: src=my.j2 dest=/etc/my.cnf
+
+
+
+

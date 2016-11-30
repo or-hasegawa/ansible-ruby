@@ -1,0 +1,42 @@
+---
+- name: gitを最新版にするためのdevelをインストール
+  with_items:
+    - make
+    - libcurl-devel
+    - gcc
+    - openssl-devel
+    - expat-devel
+    - gettext
+    - asciidoc
+    - xmlto
+    - perl-ExtUtils-MakeMaker
+    - autoconf
+  yum: name={{ item }} state=present
+
+- name: 最新版のgitをclone
+  git: repo=git@github.com:git/git.git dest=/root/git accept_hostkey=yes
+
+- name: gitをmake configure
+  command: make configure
+  register: configureres
+  args:
+    chdir: /root/git/
+    creates: configure
+
+- name: gitをconfigure
+  command: ./configure --prefix=/usr/local --with-curl --with-expat
+  args:
+    chdir: /root/git/
+  when: configureres.changed
+
+- name: gitをmake all doc
+  command: make all doc
+  args:
+    chdir: /root/git/
+  when: configureres.changed
+
+- name: gitをmake install
+  command: make install install-doc install-html
+  args:
+    chdir: /root/git/
+  when: configureres.changed

@@ -1,0 +1,18 @@
+---
+- name: check locale
+  command: localectl status
+  register: localestatus
+  changed_when: no
+
+- name: localeの設定
+  command: localectl set-locale LANG=ja_JP.utf8
+  when: localestatus.stdout_lines[0].count("ja_JP.utf8") == 0
+
+- name: check timdate
+  command: timedatectl status
+  register: timedatestatus
+  changed_when: no
+
+- name: タイムゾーンの設定
+  command: timedatectl set-timezone Asia/Tokyo
+  when: timedatestatus.stdout_lines[0].count("JST") == 0
