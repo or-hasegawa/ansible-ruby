@@ -1,0 +1,3 @@
+---
+- name: bundlerのインストール
+  gem: name=bundler executable=/usr/local/rbenv/shims/gem user_install=false
